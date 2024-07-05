@@ -67,3 +67,27 @@ def tweak_census(df, grouping_cols, condition):
         .agg(total=pl.col('population').sum())
         .sort('total', descending=True)
     )   
+    
+    
+# Summarization function
+def summarize_census(df, cols):
+    """
+    Summarizes the South Sudan 2008 census data by grouping and aggregating the specified columns.
+    This function groups the input DataFrame by the specified columns, calculates the sum of the 'total' column 
+    for each group, sorts the groups in descending order based on the summed totals, and adds a new column 'labels' 
+    that represents the total in millions, rounded to two decimal places.
+    Parameters:
+    df (pl.DataFrame): The input DataFrame containing the census data.
+    cols (list): A list of column names by which to group the data.
+    Returns:
+    pl.DataFrame: A DataFrame with the grouped and aggregated data, sorted in descending order by 'total', 
+                  and a new 'labels' column with the totals in millions.
+    """
+    import polars as pl
+    return (
+        df
+        .group_by(cols)
+        .agg(total=pl.col('total').sum())
+        .sort('total', descending=True)
+        .with_columns(labels=(pl.col('total') / 1_000_000).round(2))
+    )
